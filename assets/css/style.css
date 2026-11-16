@@ -1,0 +1,789 @@
+
+/* ========================================
+   THEME VARIABLES
+======================================== */
+
+:root,
+[data-theme="light"] {
+    color-scheme: light;
+
+    --navy: #14283f;
+    --navy-light: #1d3855;
+
+    --background: #f3f6fa;
+    --surface: #ffffff;
+    --surface-secondary: #fbfcfe;
+
+    --text: #263445;
+    --text-secondary: #536171;
+    --muted: #7b8795;
+
+    --border: #e5eaf0;
+    --border-light: #edf0f4;
+
+    --green: #198754;
+    --red: #dc3545;
+    --orange: #e99b24;
+    --blue: #2875c7;
+
+    --critical-bg: #fff0f1;
+    --critical-text: #c52e3c;
+
+    --warning-bg: #fff5e5;
+    --warning-text: #b77913;
+
+    --info-bg: #eaf3fd;
+    --info-text: #2875c7;
+
+    --success-bg: #eaf7f0;
+    --success-text: #198754;
+
+    --shadow: 0 2px 5px rgba(20,40,63,.04);
+}
+
+[data-theme="dark"] {
+    color-scheme: dark;
+
+    --navy: #0c1725;
+    --navy-light: #1b3048;
+
+    --background: #111a27;
+    --surface: #1b2736;
+    --surface-secondary: #202e3e;
+
+    --text: #e5edf6;
+    --text-secondary: #bac7d5;
+    --muted: #91a0b1;
+
+    --border: #304052;
+    --border-light: #2a394b;
+
+    --green: #36d996;
+    --red: #ff6875;
+    --orange: #f0b64f;
+    --blue: #65aaf1;
+
+    --critical-bg: #46252d;
+    --critical-text: #ff8993;
+
+    --warning-bg: #463820;
+    --warning-text: #f2c16b;
+
+    --info-bg: #243b56;
+    --info-text: #83baff;
+
+    --success-bg: #203d32;
+    --success-text: #62d6a0;
+
+    --shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+
+/* ========================================
+   GLOBAL
+======================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    transition: background .2s, color .2s;
+}
+
+a {
+    text-decoration: none;
+}
+
+
+/* ========================================
+   NAVBAR
+======================================== */
+
+.main-navbar {
+    background: var(--navy);
+    min-height: 68px;
+    padding: 0 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+
+.project-brand {
+    color: white;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: .7px;
+    white-space: nowrap;
+}
+
+.project-brand:hover {
+    color: white;
+}
+
+.project-brand span {
+    color: #5eb5f5;
+}
+
+.nav-link {
+    color: #c7d2df !important;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 24px 15px !important;
+}
+
+.nav-link.active,
+.nav-link:hover {
+    color: white !important;
+    background: rgba(255,255,255,.08);
+}
+
+.nav-link i {
+    margin-right: 4px;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+/* ========================================
+   THEME SWITCH
+======================================== */
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    color: white;
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s;
+}
+
+.theme-toggle:hover {
+    background: rgba(255,255,255,.16);
+}
+
+.theme-toggle i {
+    font-size: 15px;
+}
+
+
+/* ========================================
+   LAST CHECK
+======================================== */
+
+.last-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    border-radius: 7px;
+    background: rgba(255,255,255,.08);
+    color: white;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.status-icon {
+    font-size: 21px;
+}
+
+.status-ok .status-icon {
+    color: #36d996;
+}
+
+.status-error .status-icon {
+    color: #ff6875;
+}
+
+.last-check-label {
+    color: #aebdce;
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+}
+
+
+/* ========================================
+   MAIN LAYOUT
+======================================== */
+
+.main-container {
+    max-width: 1600px;
+    margin: auto;
+    padding: 30px;
+}
+
+.page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.page-heading h1 {
+    font-size: 25px;
+    font-weight: 750;
+    margin: 0;
+    color: var(--text);
+}
+
+.page-heading p {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 6px 0 0;
+}
+
+.dashboard-date {
+    color: var(--muted);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* ========================================
+   SUMMARY CARDS
+======================================== */
+
+.summary-card {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 19px 21px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    height: 100%;
+    transition: background .2s, border .2s;
+}
+
+.summary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.summary-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.summary-value {
+    font-size: 28px;
+    font-weight: 750;
+    margin-top: 8px;
+    color: var(--text);
+}
+
+.summary-description {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+.summary-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 20px;
+}
+
+.icon-blue {
+    color: var(--blue);
+    background: var(--info-bg);
+}
+
+.icon-orange {
+    color: var(--orange);
+    background: var(--warning-bg);
+}
+
+.icon-red {
+    color: var(--red);
+    background: var(--critical-bg);
+}
+
+.icon-green {
+    color: var(--green);
+    background: var(--success-bg);
+}
+
+
+/* ========================================
+   NOTAM SECTION
+======================================== */
+
+.notam-section {
+    margin-top: 30px;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.section-heading h2 {
+    color: var(--text);
+    font-size: 19px;
+    font-weight: 750;
+    margin: 0;
+}
+
+.section-heading p {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 5px 0 0;
+}
+
+.filter-container {
+    width: 190px;
+}
+
+.filter-container select {
+    background-color: var(--surface);
+    color: var(--text);
+    border-color: var(--border);
+    font-size: 12px;
+}
+
+
+/* ========================================
+   COUNTRY SECTIONS
+======================================== */
+
+.country-section {
+    margin-bottom: 32px;
+}
+
+.country-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 17px;
+    margin-bottom: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+}
+
+.country-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.country-flag {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: var(--info-bg);
+    color: var(--info-text);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+
+.country-title h3 {
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 750;
+    margin: 0;
+}
+
+.country-subtitle {
+    display: block;
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 3px;
+}
+
+.country-counter {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.country-empty {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--success-text);
+    padding: 20px;
+    font-size: 12px;
+}
+
+.country-empty i {
+    margin-right: 7px;
+}
+
+
+/* ========================================
+   AIRPORT CARDS
+======================================== */
+
+.airport-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    height: 100%;
+    box-shadow: var(--shadow);
+    transition: background .2s, border .2s;
+}
+
+.airport-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 17px 19px;
+    background: var(--surface-secondary);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.airport-code {
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: .5px;
+}
+
+.airport-name {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.airport-alert {
+    border-radius: 5px;
+    padding: 6px 9px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.airport-alert i {
+    margin-right: 3px;
+}
+
+.alert-warning {
+    background: var(--warning-bg);
+    color: var(--warning-text);
+}
+
+.alert-danger {
+    background: var(--critical-bg);
+    color: var(--critical-text);
+}
+
+.alert-info {
+    background: var(--info-bg);
+    color: var(--info-text);
+}
+
+
+/* ========================================
+   NOTAM ITEMS
+======================================== */
+
+.notam-list {
+    padding: 0 18px;
+}
+
+.notam-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.notam-item:last-child {
+    border-bottom: none;
+}
+
+.notam-category {
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+
+.category-radio {
+    color: var(--blue);
+    background: var(--info-bg);
+}
+
+.category-fuel {
+    color: var(--orange);
+    background: var(--warning-bg);
+}
+
+.category-closure {
+    color: var(--red);
+    background: var(--critical-bg);
+}
+
+.notam-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notam-title {
+    font-size: 12px;
+    font-weight: 750;
+    color: var(--text);
+}
+
+.notam-meta {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+.notam-number {
+    font-weight: 700;
+    color: var(--blue);
+}
+
+.notam-description {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    line-height: 1.5;
+}
+
+.notam-validity {
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 7px;
+}
+
+.notam-validity i {
+    margin-right: 4px;
+}
+
+
+/* ========================================
+   SEVERITY BADGES
+======================================== */
+
+.severity-badge {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .3px;
+    border-radius: 4px;
+    padding: 5px 7px;
+    white-space: nowrap;
+}
+
+.severity-critical {
+    color: var(--critical-text);
+    background: var(--critical-bg);
+}
+
+.severity-high {
+    color: var(--warning-text);
+    background: var(--warning-bg);
+}
+
+.severity-medium {
+    color: var(--info-text);
+    background: var(--info-bg);
+}
+
+
+/* ========================================
+   START CHECK PANEL
+======================================== */
+
+.check-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 25px;
+    margin-top: 30px;
+    box-shadow: var(--shadow);
+}
+
+.check-panel-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.check-panel h3 {
+    font-size: 16px;
+    color: var(--text);
+    font-weight: 750;
+    margin: 0;
+}
+
+.check-panel p {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 5px 0 0;
+}
+
+.btn-start-check {
+    background: var(--navy);
+    color: white;
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: .4px;
+    padding: 12px 22px;
+    border-radius: 6px;
+    border: none;
+    transition: .2s;
+}
+
+.btn-start-check:hover {
+    background: var(--navy-light);
+    color: white;
+}
+
+.btn-start-check i {
+    margin-right: 7px;
+}
+
+.btn-start-check:disabled {
+    opacity: .7;
+}
+
+.check-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--blue);
+    font-size: 12px;
+    margin-top: 18px;
+}
+
+
+/* ========================================
+   FOOTER
+======================================== */
+
+.main-footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 10px;
+    padding: 22px;
+}
+
+.main-footer span {
+    margin: 0 5px;
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 1199px) {
+
+    .main-navbar {
+        padding: 10px 18px;
+    }
+
+    .nav-link {
+        padding: 12px 10px !important;
+    }
+
+    .navbar-right {
+        align-items: flex-start;
+        flex-direction: column;
+        margin: 12px 0;
+    }
+}
+
+@media (max-width: 767px) {
+
+    .main-container {
+        padding: 20px 14px;
+    }
+
+    .page-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .page-heading h1 {
+        font-size: 21px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .filter-container {
+        width: 100%;
+    }
+
+    .country-heading {
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .country-counter {
+        text-align: right;
+        font-size: 10px;
+    }
+
+    .airport-header {
+        padding: 14px;
+    }
+
+    .notam-list {
+        padding: 0 14px;
+    }
+
+    .notam-item {
+        gap: 9px;
+    }
+
+    .severity-badge {
+        font-size: 8px;
+        padding: 4px 5px;
+    }
+
+    .check-panel-content {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .btn-start-check {
+        width: 100%;
+    }
+}
