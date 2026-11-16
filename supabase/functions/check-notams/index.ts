@@ -11,7 +11,10 @@ const FAA_CLIENT_SECRET = Deno.env.get("FAA_CLIENT_SECRET")!;
 const FAA_AUTH_URL = "https://api-nms.aim.faa.gov/v1/auth/token";
 const FAA_NOTAM_URL = "https://api-nms.aim.faa.gov/nmsapi/v1/notams";
 
-const DAYS_AHEAD = 7;
+const AIRPORT_DELAY_MS = 2000;
+const MAX_RETRIES = 3;
+const UPSERT_BATCH_SIZE = 100;
+const DELETE_BATCH_SIZE = 100;
 
 const supabase = createClient(
   SUPABASE_URL,
@@ -25,7 +28,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-function response(data: unknown, status = 200) {
+function jsonResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
@@ -35,6 +38,14 @@ function response(data: unknown, status = 200) {
   });
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/* ==========================================
+   FAA AUTHENTICATION
+========================================== */
+
 async function getFaaToken(): Promise<string> {
   const body = new URLSearchParams({
     grant_type: "client_credentials",
@@ -42,7 +53,7 @@ async function getFaaToken(): Promise<string> {
     client_secret: FAA_CLIENT_SECRET,
   });
 
-  const result = await fetch(FAA_AUTH_URL, {
+  const response = await fetch(FAA_AUTH_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -50,11 +61,13 @@ async function getFaaToken(): Promise<string> {
     body,
   });
 
-  if (!result.ok) {
-    throw new Error(`FAA authentication failed: ${result.status}`);
+  if (!response.ok) {
+    throw new Error(
+      `FAA authentication failed: ${response.status} - ${await response.text()}`
+    );
   }
 
-  const data = await result.json();
+  const data = await response.json();
 
   if (!data.access_token) {
     throw new Error("FAA access_token missing");
@@ -63,208 +76,444 @@ async function getFaaToken(): Promise<string> {
   return data.access_token;
 }
 
-function isRelevantNotam(notam: any): boolean {
-  const now = new Date();
-  const limit = new Date(
-    now.getTime() + DAYS_AHEAD * 24 * 60 * 60 * 1000
-  );
-
-  const start = new Date(notam.effectiveStart);
-
-  if (Number.isNaN(start.getTime()) || start > limit) {
-    return false;
-  }
-
-  if (notam.effectiveEnd === "PERM") {
-    return true;
-  }
-
-  const end = new Date(notam.effectiveEnd);
-
-  return !Number.isNaN(end.getTime()) && end >= now;
-}
-
-async function deleteExpiredNotams(icao: string) {
-  const now = new Date().toISOString();
-
-  const { error } = await supabase
-    .from("tbl_notams")
-    .delete()
-    .eq("apt", icao)
-    .neq("end_date", "PERM")
-    .lt("end_date", now);
-
-  if (error) {
-    throw new Error(
-      `Cannot delete expired NOTAMs for ${icao}: ${error.message}`
-    );
-  }
-}
+/* ==========================================
+   FAA NOTAM REQUEST
+========================================== */
 
 async function getAirportNotams(
   icao: string,
   token: string
 ): Promise<any[]> {
+
   const url = new URL(FAA_NOTAM_URL);
   url.searchParams.set("location", icao);
 
-  const result = await fetch(url.toString(), {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      nmsResponseFormat: "AIXM",
-      Accept: "application/json",
-    },
-  });
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
 
-  if (!result.ok) {
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        nmsResponseFormat: "GEOJSON",
+        Accept: "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+
+      if (data.status !== "Success") {
+        throw new Error(
+          `FAA unsuccessful response for ${icao}: ${JSON.stringify(data)}`
+        );
+      }
+
+      const features = data.data?.geojson;
+
+      if (!Array.isArray(features)) {
+        throw new Error(
+          `Unexpected FAA response format for ${icao}. Data keys: ${
+            Object.keys(data.data ?? {}).join(", ")
+          }`
+        );
+      }
+
+      console.log(`FAA ${icao}: ${features.length} NOTAMs received`);
+
+      return features;
+    }
+
+    const errorBody = await response.text();
+
+    if (response.status === 429 && attempt < MAX_RETRIES) {
+
+      const retryAfter = response.headers.get("Retry-After");
+
+      let waitTime = Math.pow(2, attempt + 1) * 5000;
+
+      if (retryAfter) {
+        const seconds = Number(retryAfter);
+
+        if (Number.isFinite(seconds) && seconds > 0) {
+          waitTime = seconds * 1000;
+        } else {
+          const retryDate = new Date(retryAfter).getTime();
+
+          if (!Number.isNaN(retryDate)) {
+            waitTime = Math.max(1000, retryDate - Date.now());
+          }
+        }
+      }
+
+      console.log(
+        `FAA 429 for ${icao}. Retry ${attempt + 1} in ${waitTime} ms`
+      );
+
+      await sleep(waitTime);
+      continue;
+    }
+
     throw new Error(
-      `FAA request failed for ${icao}: ${result.status}`
+      `FAA request failed for ${icao}: ${response.status} - ${errorBody}`
     );
   }
 
-  const data = await result.json();
-
-  if (data.status !== "Success") {
-    throw new Error(`FAA returned an unsuccessful response for ${icao}`);
-  }
-
-  return data.data?.geojson ?? [];
+  throw new Error(`FAA retries exhausted for ${icao}`);
 }
 
+/* ==========================================
+   CONVERT AND FILTER NOTAMS
+========================================== */
+
+function convertNotam(feature: any, airportIcao: string) {
+
+  const notam =
+    feature?.properties?.coreNOTAMData?.notam;
+
+  if (!notam?.number) {
+    return null;
+  }
+
+  // Only international NOTAMs are stored.
+  if (
+    String(notam.classification ?? "").toUpperCase() !== "INTL"
+  ) {
+    return null;
+  }
+
+  const translations =
+    feature?.properties?.coreNOTAMData?.notamTranslation ?? [];
+
+  const icaoTranslation = translations.find(
+    (item: any) => item.type === "ICAO"
+  );
+
+  const endDate = notam.effectiveEnd ?? null;
+
+  // Permanent NOTAMs are retained.
+  if (endDate && String(endDate).toUpperCase() !== "PERM") {
+    const parsedEndDate = new Date(endDate);
+
+    if (
+      !Number.isNaN(parsedEndDate.getTime()) &&
+      parsedEndDate.getTime() < Date.now()
+    ) {
+      return null;
+    }
+  }
+
+  return {
+    apt: notam.icaoLocation || notam.location || airportIcao,
+    number: notam.number,
+    classification: notam.classification,
+    issue_date: notam.issued ?? null,
+    start_date: notam.effectiveStart ?? null,
+    end_date: endDate,
+    short_text: notam.text ?? "",
+    plain_text: icaoTranslation?.formattedText ?? "",
+  };
+}
+
+/* ==========================================
+   UPSERT NOTAMS
+========================================== */
+
+async function upsertNotams(records: any[]) {
+
+  let totalUpserted = 0;
+
+  for (
+    let i = 0;
+    i < records.length;
+    i += UPSERT_BATCH_SIZE
+  ) {
+
+    const batch = records.slice(
+      i,
+      i + UPSERT_BATCH_SIZE
+    );
+
+    const { error } = await supabase
+      .from("tbl_notams")
+      .upsert(batch, {
+        onConflict: "apt,number",
+      });
+
+    if (error) {
+      throw new Error(
+        `Supabase upsert error: ${error.message}`
+      );
+    }
+
+    totalUpserted += batch.length;
+  }
+
+  return totalUpserted;
+}
+
+/* ==========================================
+   DELETE EXPIRED NOTAMS FROM DATABASE
+========================================== */
+
+
+async function deleteExpiredNotams() {
+
+  const now = Date.now();
+
+  let offset = 0;
+  const expiredIds: number[] = [];
+
+  while (true) {
+
+    const { data, error } = await supabase
+      .from("tbl_notams")
+      .select("id,end_date")
+      .order("id")
+      .range(offset, offset + 999);
+
+    if (error) {
+      throw new Error(
+        `Cannot read NOTAMs for expiry cleanup: ${error.message}`
+      );
+    }
+
+    if (!data || data.length === 0) {
+      break;
+    }
+
+    for (const record of data) {
+
+      if (!record.end_date) continue;
+
+      if (
+        String(record.end_date).toUpperCase() === "PERM"
+      ) {
+        continue;
+      }
+
+      const end = new Date(record.end_date);
+
+      if (
+        !Number.isNaN(end.getTime()) &&
+        end.getTime() < now
+      ) {
+        expiredIds.push(record.id);
+      }
+    }
+
+    offset += data.length;
+
+    if (data.length < 1000) {
+      break;
+    }
+  }
+
+  let totalDeleted = 0;
+
+  for (
+    let i = 0;
+    i < expiredIds.length;
+    i += DELETE_BATCH_SIZE
+  ) {
+
+    const batch = expiredIds.slice(
+      i,
+      i + DELETE_BATCH_SIZE
+    );
+
+    const { error } = await supabase
+      .from("tbl_notams")
+      .delete()
+      .in("id", batch);
+
+    if (error) {
+      throw new Error(
+        `Cannot delete expired NOTAMs: ${error.message}`
+      );
+    }
+
+    totalDeleted += batch.length;
+  }
+
+  return totalDeleted;
+}
+
+/* ==========================================
+   MAIN FUNCTION
+========================================== */
+
 Deno.serve(async (req) => {
+
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", {
+      headers: corsHeaders,
+    });
   }
 
   if (req.method !== "POST") {
-    return response({ error: "Method not allowed" }, 405);
+    return jsonResponse({
+      success: false,
+      error: "Method not allowed",
+    }, 405);
   }
 
   try {
-    const now = new Date();
 
-    // 1. Recupera gli aeroporti da controllare
-    const { data: airports, error: airportError } = await supabase
-      .from("tbl_apt")
-      .select("ICAO, IATA, name, state")
-      .order("state")
-      .order("ICAO");
+    const checkStartedAt = new Date();
 
-    if (airportError) throw airportError;
+    /* 1. LOAD AIRPORTS */
+
+    const { data: airports, error: airportError } =
+      await supabase
+        .from("tbl_apt")
+        .select("ICAO,IATA,name,state")
+        .order("state")
+        .order("ICAO");
+
+    if (airportError) {
+      throw new Error(
+        `Cannot load airports: ${airportError.message}`
+      );
+    }
 
     if (!airports?.length) {
       throw new Error("No airports found in tbl_apt");
     }
 
-    // 2. Elimina i NOTAM scaduti per ogni aeroporto
-    for (const airport of airports) {
-      await deleteExpiredNotams(airport.ICAO);
-    }
+    /* 2. FAA AUTHENTICATION */
 
-    // 3. Richiede un nuovo token FAA
     const token = await getFaaToken();
 
     let totalReceived = 0;
-    let totalRelevant = 0;
+    let totalIntlReceived = 0;
     let totalUpserted = 0;
 
-    const airportResults = [];
+    const airportResults: any[] = [];
+    const failures: any[] = [];
 
-    // 4. Interroga FAA per ogni aeroporto
-    for (const airport of airports) {
+    /* 3. CHECK EACH AIRPORT */
+
+    for (let index = 0; index < airports.length; index++) {
+
+      const airport = airports[index];
       const icao = airport.ICAO;
 
-      const features = await getAirportNotams(icao, token);
+      try {
 
-      totalReceived += features.length;
+        console.log(`Checking ${icao}`);
 
-      const records = [];
-
-      // 5. Filtra e converte i NOTAM
-      for (const feature of features) {
-        const notam =
-          feature?.properties?.coreNOTAMData?.notam;
-
-        if (!notam || !isRelevantNotam(notam)) {
-          continue;
-        }
-
-        // Identificazione basata sul numero NOTAM.
-        // apt + number costituiscono la chiave di merge.
-        const translation =
-          feature?.properties?.coreNOTAMData?.notamTranslation ?? [];
-
-        const icaoTranslation = translation.find(
-          (item: any) => item.type === "ICAO"
+        const features = await getAirportNotams(
+          icao,
+          token
         );
 
-        records.push({
-          apt: notam.icaoLocation || notam.location || icao,
-          number: notam.number,
-          classification: notam.classification ?? null,
-          issue_date: notam.issued ?? null,
-          start_date: notam.effectiveStart ?? null,
-          end_date: notam.effectiveEnd ?? null,
-          short_text: notam.text ?? "",
-          plain_text: icaoTranslation?.formattedText ?? "",
+        totalReceived += features.length;
+
+        const recordsMap = new Map<string, any>();
+
+        for (const feature of features) {
+
+          const record = convertNotam(feature, icao);
+
+          if (!record) continue;
+
+          totalIntlReceived++;
+
+          const key = `${record.apt}|${record.number}`;
+
+          recordsMap.set(key, record);
+        }
+
+        const records = Array.from(recordsMap.values());
+
+        const upserted = await upsertNotams(records);
+
+        totalUpserted += upserted;
+
+        airportResults.push({
+          icao,
+          name: airport.name,
+          received: features.length,
+          intl_received: records.length,
+          upserted,
+          success: true,
+        });
+
+      } catch (error) {
+
+        const message = error instanceof Error
+          ? error.message
+          : "Unknown error";
+
+        console.error(`Error checking ${icao}: ${message}`);
+
+        failures.push({
+          icao,
+          error: message,
+        });
+
+        airportResults.push({
+          icao,
+          name: airport.name,
+          success: false,
+          error: message,
         });
       }
 
-      totalRelevant += records.length;
-
-      // 6. Merge su apt + number
-      if (records.length > 0) {
-        const { error } = await supabase
-          .from("tbl_notams")
-          .upsert(records, {
-            onConflict: "apt,number",
-          });
-
-        if (error) {
-          throw new Error(
-            `Upsert failed for ${icao}: ${error.message}`
-          );
-        }
-
-        totalUpserted += records.length;
+      if (index < airports.length - 1) {
+        await sleep(AIRPORT_DELAY_MS);
       }
-
-      airportResults.push({
-        icao,
-        name: airport.name,
-        received: features.length,
-        relevant: records.length,
-      });
     }
 
-    // 7. Aggiorna la data dell'ultimo controllo
-    const { error: checkError } = await supabase
-      .from("tbl_check")
-      .upsert(
-        {
+    /* 4. REMOVE EXPIRED DATABASE RECORDS */
+
+    const deletedExpired = await deleteExpiredNotams();
+
+    /* 5. UPDATE LAST CHECK ONLY IF ALL AIRPORTS SUCCEEDED */
+
+    const completedAt = new Date();
+
+    if (failures.length === 0) {
+
+      const { error: checkError } = await supabase
+        .from("tbl_check")
+        .upsert({
           id: 1,
-          last_check_date: now.toISOString(),
-        },
-        { onConflict: "id" }
-      );
+          last_check_date: completedAt.toISOString(),
+        }, {
+          onConflict: "id",
+        });
 
-    if (checkError) throw checkError;
+      if (checkError) {
+        throw new Error(
+          `Cannot update tbl_check: ${checkError.message}`
+        );
+      }
+    }
 
-    return response({
-      success: true,
-      check_date: now.toISOString(),
+    /* 6. RESPONSE */
+
+    return jsonResponse({
+      success: failures.length === 0,
+      partial: failures.length > 0,
+      check_started_at: checkStartedAt.toISOString(),
+      check_completed_at: completedAt.toISOString(),
       airports_checked: airports.length,
+      airports_succeeded: airports.length - failures.length,
+      airports_failed: failures.length,
       total_received: totalReceived,
-      total_relevant: totalRelevant,
+      total_intl_received: totalIntlReceived,
       total_upserted: totalUpserted,
+      expired_deleted: deletedExpired,
+      failures,
       airports: airportResults,
     });
 
   } catch (error) {
-    console.error(error);
 
-    return response({
+    console.error("CHECK NOTAMS ERROR:", error);
+
+    return jsonResponse({
       success: false,
       error: error instanceof Error
         ? error.message
