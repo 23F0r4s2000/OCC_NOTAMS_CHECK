@@ -1,608 +1,145 @@
 
 <!DOCTYPE html>
-<html lang="it" data-theme="light">
-
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCC NOTAMS FAA</title>
 
-    <title>EN NOTAM CHECK | Dashboard</title>
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-xl navbar-dark main-navbar">
+<nav class="navbar navbar-expand-lg navbar-dark main-navbar">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold" href="#">
+            <i class="bi bi-airplane-engines me-2"></i>
+            OCC NOTAMS FAA
+        </a>
 
-        <div class="container-fluid">
+        <div class="d-flex align-items-center gap-3">
+            <div class="last-check">
+                <i id="checkStatusIcon" class="bi bi-clock-history"></i>
+                <span id="lastCheck">Last check: Loading...</span>
+            </div>
 
-            <a class="navbar-brand project-brand" href="index.html">
-                EN <span>NOTAM</span> CHECK
-            </a>
-
-            <button class="navbar-toggler" type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#mainNavbar"
-                    aria-controls="mainNavbar"
-                    aria-expanded="false"
-                    aria-label="Apri menu">
-                <span class="navbar-toggler-icon"></span>
+            <button class="btn btn-outline-light btn-sm" id="themeToggle">
+                <i class="bi bi-sun-fill"></i>
             </button>
-
-            <div class="collapse navbar-collapse" id="mainNavbar">
-
-                <ul class="navbar-nav ms-4">
-
-                    <li class="nav-item">
-                        <a class="nav-link active" href="index.html">
-                            <i class="bi bi-grid-1x2-fill"></i> Dashboard
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-airplane"></i> Airports
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-card-list"></i> NOTAM Archive
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-clock-history"></i> Check History
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-gear"></i> Settings
-                        </a>
-                    </li>
-
-                </ul>
-
-                <div class="navbar-right ms-auto">
-
-                    <!-- THEME SWITCH -->
-                    <button id="themeToggle" class="theme-toggle" type="button">
-                        <i id="themeIcon" class="bi bi-moon-stars-fill"></i>
-                        <span id="themeLabel">Dark mode</span>
-                    </button>
-
-                    <!-- LAST CHECK -->
-                    <div id="lastCheckStatus" class="last-check status-ok">
-
-                        <i id="lastCheckIcon" class="bi bi-check-circle-fill status-icon"></i>
-
-                        <div>
-                            <span class="last-check-label">Last NOTAM check</span>
-                            <strong id="lastCheckDate">16/11/2026 - 08:35 UTC</strong>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
+<main class="container-fluid px-4 py-4">
 
-    <!-- MAIN CONTENT -->
-    <main class="main-container">
-
-        <!-- PAGE HEADER -->
-        <div class="page-heading">
-
-            <div>
-                <h1>Operational Dashboard</h1>
-                <p>NOTAM monitoring and airport operational status</p>
-            </div>
-
-            <div class="dashboard-date">
-                <i class="bi bi-calendar3"></i>
-                <span id="currentDate">Monday, 16 November 2026</span>
-            </div>
-
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2 class="page-title">NOTAM Dashboard</h2>
+            <p class="text-secondary mb-0">
+                Operational NOTAM monitoring
+            </p>
         </div>
 
+        <button id="checkNotamsBtn" class="btn btn-primary px-4">
+            <i class="bi bi-arrow-repeat me-2"></i>
+            CHECK NOTAMS
+        </button>
+    </div>
 
-        <!-- SUMMARY CARDS -->
-        <section class="row g-3 mb-4">
+    <div id="checkProgress" class="alert alert-info d-none">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Checking airports and retrieving FAA NOTAMs...
+    </div>
 
-            <div class="col-6 col-xl-3">
-                <div class="summary-card">
-                    <div class="summary-top">
-                        <span class="summary-label">Monitored airports</span>
-                        <i class="bi bi-airplane summary-icon icon-blue"></i>
-                    </div>
-                    <div class="summary-value" id="totalAirports">24</div>
-                    <div class="summary-description">Airports under monitoring</div>
-                </div>
+    <div id="checkResult" class="mb-3"></div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="summary-card">
+                <div class="summary-label">Airports monitored</div>
+                <div class="summary-value" id="airportCount">0</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="summary-card">
+                <div class="summary-label">Active / upcoming NOTAMs</div>
+                <div class="summary-value" id="notamCount">0</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="summary-card">
+                <div class="summary-label">Countries monitored</div>
+                <div class="summary-value" id="countryCount">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
+        <h4 class="section-title mb-0">Airports and NOTAMs</h4>
+
+        <select id="categoryFilter" class="form-select filter-select">
+            <option value="all">All classifications</option>
+            <option value="MIL">MIL</option>
+            <option value="DOM">DOM</option>
+            <option value="INT">INT</option>
+        </select>
+    </div>
+
+    <div id="airportsContainer">
+        <div class="loading-state">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Loading dashboard...
+        </div>
+    </div>
+
+</main>
+
+<!-- ICAO TEXT MODAL -->
+<div class="modal fade" id="icaoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modal-custom">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-text me-2"></i>
+                    ICAO NOTAM TEXT
+                </h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <div class="col-6 col-xl-3">
-                <div class="summary-card">
-                    <div class="summary-top">
-                        <span class="summary-label">Relevant NOTAMs</span>
-                        <i class="bi bi-exclamation-triangle summary-icon icon-orange"></i>
-                    </div>
-                    <div class="summary-value" id="totalNotams">08</div>
-                    <div class="summary-description">Across all monitored airports</div>
-                </div>
+            <div class="modal-body">
+                <div id="icaoNotamNumber" class="fw-bold mb-3"></div>
+
+                <pre id="icaoPlainText" class="icao-text"></pre>
             </div>
 
-            <div class="col-6 col-xl-3">
-                <div class="summary-card">
-                    <div class="summary-top">
-                        <span class="summary-label">Countries affected</span>
-                        <i class="bi bi-globe-europe-africa summary-icon icon-green"></i>
-                    </div>
-                    <div class="summary-value" id="totalCountries">04</div>
-                    <div class="summary-description">With relevant active NOTAMs</div>
-                </div>
-            </div>
-
-            <div class="col-6 col-xl-3">
-                <div class="summary-card">
-                    <div class="summary-top">
-                        <span class="summary-label">Airports affected</span>
-                        <i class="bi bi-geo-alt summary-icon icon-red"></i>
-                    </div>
-                    <div class="summary-value" id="affectedAirports">05</div>
-                    <div class="summary-description">With relevant NOTAMs</div>
-                </div>
-            </div>
-
-        </section>
-
-
-        <!-- NOTAM SECTION -->
-        <section class="notam-section">
-
-            <div class="section-heading">
-
-                <div>
-                    <h2>Relevant Active NOTAMs</h2>
-                    <p>Grouped by country and airport</p>
-                </div>
-
-                <div class="filter-container">
-                    <select class="form-select form-select-sm" id="notamFilter">
-                        <option value="all">All categories</option>
-                        <option value="closure">Airport closures</option>
-                        <option value="radio">Radio navigation</option>
-                        <option value="fuel">Fuel services</option>
-                    </select>
-                </div>
-
-            </div>
-
-
-            <!-- =========================
-                 ITALY
-            ========================== -->
-            <section class="country-section" data-country="IT">
-
-                <div class="country-heading">
-                    <div class="country-title">
-                        <span class="country-flag">IT</span>
-                        <div>
-                            <h3>Italy</h3>
-                            <span class="country-subtitle">Italian NOTAMs</span>
-                        </div>
-                    </div>
-
-                    <span class="country-counter">2 airports · 3 NOTAMs</span>
-                </div>
-
-
-                <div class="row g-3 airport-grid">
-
-                    <!-- LIPX -->
-                    <div class="col-12 col-xl-6 airport-column">
-
-                        <div class="airport-card">
-
-                            <div class="airport-header">
-                                <div>
-                                    <div class="airport-code">LIPX</div>
-                                    <div class="airport-name">Verona Villafranca</div>
-                                </div>
-
-                                <span class="airport-alert alert-warning">
-                                    <i class="bi bi-exclamation-triangle-fill"></i>
-                                    2 Active NOTAMs
-                                </span>
-                            </div>
-
-                            <div class="notam-list">
-
-                                <div class="notam-item" data-category="radio">
-
-                                    <div class="notam-category category-radio">
-                                        <i class="bi bi-broadcast"></i>
-                                    </div>
-
-                                    <div class="notam-content">
-                                        <div class="notam-title">
-                                            ILS RWY 22 OUT OF SERVICE
-                                        </div>
-
-                                        <div class="notam-meta">
-                                            <span class="notam-number">B6672/26</span>
-                                            <span> · Radio Navigation</span>
-                                        </div>
-
-                                        <div class="notam-description">
-                                            ILS CAT I RWY 22 U/S.
-                                        </div>
-
-                                        <div class="notam-validity">
-                                            <i class="bi bi-calendar-event"></i>
-                                            Until 18 NOV 2026 18:00 UTC
-                                        </div>
-                                    </div>
-
-                                    <span class="severity-badge severity-high">HIGH</span>
-
-                                </div>
-
-
-                                <div class="notam-item" data-category="fuel">
-
-                                    <div class="notam-category category-fuel">
-                                        <i class="bi bi-fuel-pump"></i>
-                                    </div>
-
-                                    <div class="notam-content">
-                                        <div class="notam-title">
-                                            JET A1 FUEL UNAVAILABLE
-                                        </div>
-
-                                        <div class="notam-meta">
-                                            <span class="notam-number">B6680/26</span>
-                                            <span> · Fuel Services</span>
-                                        </div>
-
-                                        <div class="notam-description">
-                                            JET A1 refuelling temporarily unavailable.
-                                        </div>
-
-                                        <div class="notam-validity">
-                                            <i class="bi bi-calendar-event"></i>
-                                            Until 17 NOV 2026 12:00 UTC
-                                        </div>
-                                    </div>
-
-                                    <span class="severity-badge severity-critical">CRITICAL</span>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- LIMC -->
-                    <div class="col-12 col-xl-6 airport-column">
-
-                        <div class="airport-card">
-
-                            <div class="airport-header">
-                                <div>
-                                    <div class="airport-code">LIMC</div>
-                                    <div class="airport-name">Milano Malpensa</div>
-                                </div>
-
-                                <span class="airport-alert alert-danger">
-                                    <i class="bi bi-exclamation-circle-fill"></i>
-                                    1 Active NOTAM
-                                </span>
-                            </div>
-
-                            <div class="notam-list">
-
-                                <div class="notam-item" data-category="closure">
-
-                                    <div class="notam-category category-closure">
-                                        <i class="bi bi-sign-stop"></i>
-                                    </div>
-
-                                    <div class="notam-content">
-                                        <div class="notam-title">
-                                            AIRPORT CLOSED
-                                        </div>
-
-                                        <div class="notam-meta">
-                                            <span class="notam-number">A4821/26</span>
-                                            <span> · Airport Closure</span>
-                                        </div>
-
-                                        <div class="notam-description">
-                                            AD CLSD DUE TO EMERGENCY EXERCISE.
-                                        </div>
-
-                                        <div class="notam-validity">
-                                            <i class="bi bi-calendar-event"></i>
-                                            16 NOV 2026 10:00 - 12:00 UTC
-                                        </div>
-                                    </div>
-
-                                    <span class="severity-badge severity-critical">CRITICAL</span>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-
-
-            <!-- =========================
-                 GERMANY
-            ========================== -->
-            <section class="country-section" data-country="DE">
-
-                <div class="country-heading">
-                    <div class="country-title">
-                        <span class="country-flag">DE</span>
-                        <div>
-                            <h3>Germany</h3>
-                            <span class="country-subtitle">German NOTAMs</span>
-                        </div>
-                    </div>
-
-                    <span class="country-counter">1 airport · 2 NOTAMs</span>
-                </div>
-
-
-                <div class="row g-3 airport-grid">
-
-                    <!-- EDDM -->
-                    <div class="col-12 col-xl-6 airport-column">
-
-                        <div class="airport-card">
-
-                            <div class="airport-header">
-                                <div>
-                                    <div class="airport-code">EDDM</div>
-                                    <div class="airport-name">Munich</div>
-                                </div>
-
-                                <span class="airport-alert alert-warning">
-                                    <i class="bi bi-exclamation-triangle-fill"></i>
-                                    2 Active NOTAMs
-                                </span>
-                            </div>
-
-                            <div class="notam-list">
-
-                                <div class="notam-item" data-category="radio">
-
-                                    <div class="notam-category category-radio">
-                                        <i class="bi bi-broadcast"></i>
-                                    </div>
-
-                                    <div class="notam-content">
-                                        <div class="notam-title">
-                                            VOR MUNICH UNSERVICEABLE
-                                        </div>
-
-                                        <div class="notam-meta">
-                                            <span class="notam-number">A7120/26</span>
-                                            <span> · Radio Navigation</span>
-                                        </div>
-
-                                        <div class="notam-description">
-                                            MUN VOR/DME 114.3 MHZ U/S.
-                                        </div>
-
-                                        <div class="notam-validity">
-                                            <i class="bi bi-calendar-event"></i>
-                                            Until 19 NOV 2026 06:00 UTC
-                                        </div>
-                                    </div>
-
-                                    <span class="severity-badge severity-high">HIGH</span>
-
-                                </div>
-
-
-                                <div class="notam-item" data-category="fuel">
-
-                                    <div class="notam-category category-fuel">
-                                        <i class="bi bi-fuel-pump"></i>
-                                    </div>
-
-                                    <div class="notam-content">
-                                        <div class="notam-title">
-                                            FUEL PRESSURE REDUCED
-                                        </div>
-
-                                        <div class="notam-meta">
-                                            <span class="notam-number">A7135/26</span>
-                                            <span> · Fuel Services</span>
-                                        </div>
-
-                                        <div class="notam-description">
-                                            Reduced fuel supply pressure at selected stands.
-                                        </div>
-
-                                        <div class="notam-validity">
-                                            <i class="bi bi-calendar-event"></i>
-                                            Until 20 NOV 2026 20:00 UTC
-                                        </div>
-                                    </div>
-
-                                    <span class="severity-badge severity-medium">MEDIUM</span>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-
-
-            <!-- =========================
-                 AUSTRIA
-            ========================== -->
-            <section class="country-section" data-country="AT">
-
-                <div class="country-heading">
-                    <div class="country-title">
-                        <span class="country-flag">AT</span>
-                        <div>
-                            <h3>Austria</h3>
-                            <span class="country-subtitle">Austrian NOTAMs</span>
-                        </div>
-                    </div>
-
-                    <span class="country-counter">1 airport · 1 NOTAM</span>
-                </div>
-
-
-                <div class="row g-3 airport-grid">
-
-                    <!-- LOWW -->
-                    <div class="col-12 col-xl-6 airport-column">
-
-                        <div class="airport-card">
-
-                            <div class="airport-header">
-                                <div>
-                                    <div class="airport-code">LOWW</div>
-                                    <div class="airport-name">Vienna International</div>
-                                </div>
-
-                                <span class="airport-alert alert-warning">
-                                    <i class="bi bi-exclamation-triangle-fill"></i>
-                                    1 Active NOTAM
-                                </span>
-                            </div>
-
-                            <div class="notam-list">
-
-                                <div class="notam-item" data-category="radio">
-
-                                    <div class="notam-category category-radio">
-                                        <i class="bi bi-broadcast"></i>
-                                    </div>
-
-                                    <div class="notam-content">
-                                        <div class="notam-title">
-                                            LOC RWY 16 OUT OF SERVICE
-                                        </div>
-
-                                        <div class="notam-meta">
-                                            <span class="notam-number">A3912/26</span>
-                                            <span> · Radio Navigation</span>
-                                        </div>
-
-                                        <div class="notam-description">
-                                            LOCALIZER RWY 16 U/S.
-                                        </div>
-
-                                        <div class="notam-validity">
-                                            <i class="bi bi-calendar-event"></i>
-                                            Until 17 NOV 2026 22:00 UTC
-                                        </div>
-                                    </div>
-
-                                    <span class="severity-badge severity-high">HIGH</span>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-
-
-            <!-- =========================
-                 FRANCE
-            ========================== -->
-            <section class="country-section" data-country="FR">
-
-                <div class="country-heading">
-                    <div class="country-title">
-                        <span class="country-flag">FR</span>
-                        <div>
-                            <h3>France</h3>
-                            <span class="country-subtitle">French NOTAMs</span>
-                        </div>
-                    </div>
-
-                    <span class="country-counter">No relevant NOTAMs</span>
-                </div>
-
-                <div class="country-empty">
-                    <i class="bi bi-check-circle"></i>
-                    No relevant active NOTAMs for monitored airports.
-                </div>
-
-            </section>
-
-        </section>
-
-
-        <!-- START CHECK -->
-        <section class="check-panel">
-
-            <div class="check-panel-content">
-
-                <div>
-                    <h3>NOTAM Monitoring</h3>
-                    <p>Run a new check across all configured airports.</p>
-                </div>
-
-                <button id="startCheckBtn" class="btn btn-start-check" type="button">
-                    <i class="bi bi-arrow-repeat"></i>
-                    START CHECK NOTAM
+            <div class="modal-footer">
+                <button id="copyIcaoText" class="btn btn-primary">
+                    <i class="bi bi-clipboard me-2"></i>
+                    Copy text
                 </button>
 
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
             </div>
 
-            <div id="checkProgress" class="check-progress d-none">
-                <div class="spinner-border spinner-border-sm" role="status"></div>
-                <span>Checking NOTAMs...</span>
-            </div>
+        </div>
+    </div>
+</div>
 
-        </section>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    </main>
-
-
-    <!-- FOOTER -->
-    <footer class="main-footer">
-        EN NOTAM CHECK <span>·</span> Operational Monitoring System
-    </footer>
-
-
-    <!-- SCRIPTS -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/app.js"></script>
+<script src="assets/js/app.js"></script>
 
 </body>
 </html>
