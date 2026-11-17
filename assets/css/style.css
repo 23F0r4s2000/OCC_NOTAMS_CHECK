@@ -1,3 +1,6 @@
+/* =====================================================
+   1. THEME VARIABLES
+===================================================== */
 
 :root {
     --bg: #101923;
@@ -6,10 +9,13 @@
     --border: #2d3c4c;
     --text: #e8edf3;
     --muted: #94a3b3;
+
     --primary: #2878d0;
     --success: #20a46b;
     --warning: #d69a28;
     --danger: #d9534f;
+
+    --navbar-bg: #101c2a;
 }
 
 [data-theme="light"] {
@@ -19,7 +25,26 @@
     --border: #dce3eb;
     --text: #243244;
     --muted: #718096;
+
     --primary: #1769aa;
+    --success: #198754;
+    --warning: #b98217;
+    --danger: #dc3545;
+
+    --navbar-bg: #ffffff;
+}
+
+
+/* =====================================================
+   2. GLOBAL
+===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
 }
 
 body {
@@ -27,36 +52,12 @@ body {
     color: var(--text);
     font-family: Arial, sans-serif;
     min-height: 100vh;
+    margin: 0;
+    transition: background .2s ease, color .2s ease;
 }
 
-.main-navbar {
-    background: #101c2a;
-    border-bottom: 1px solid #2c3c4e;
-    min-height: 66px;
-}
-
-.navbar-brand {
-    letter-spacing: .4px;
-}
-
-.last-check {
-    color: #c4d0dc;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.last-check i {
-    font-size: 16px;
-}
-
-.last-check .check-ok {
-    color: #2ecc71;
-}
-
-.last-check .check-old {
-    color: #e05a5a;
+.text-secondary {
+    color: var(--muted) !important;
 }
 
 .page-title {
@@ -69,16 +70,126 @@ body {
     font-weight: 700;
 }
 
-.text-secondary {
-    color: var(--muted) !important;
+
+/* =====================================================
+   3. NAVBAR
+===================================================== */
+
+.main-navbar,
+.app-navbar {
+    min-height: 66px;
+    padding: 8px 18px !important;
+    background: var(--navbar-bg) !important;
+    border-bottom: 1px solid var(--border);
 }
 
+.main-navbar .container-fluid,
+.app-navbar .container-fluid {
+    display: flex;
+    align-items: center;
+}
+
+.main-navbar .navbar-brand,
+.app-navbar .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text) !important;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    text-decoration: none;
+    white-space: nowrap;
+    margin-right: 24px;
+}
+
+.main-navbar .navbar-brand i,
+.app-navbar .navbar-brand i {
+    font-size: 20px;
+}
+
+.main-navbar .navbar-nav,
+.app-navbar .navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.main-navbar .nav-link,
+.app-navbar .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 9px 13px !important;
+    color: var(--muted) !important;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 7px;
+    white-space: nowrap;
+    transition: background .15s ease, color .15s ease;
+}
+
+.main-navbar .nav-link:hover,
+.main-navbar .nav-link.active,
+.app-navbar .nav-link:hover,
+.app-navbar .nav-link.active {
+    color: var(--text) !important;
+    background: var(--surface-2);
+}
+
+.navbar-tools {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-left: auto;
+    color: var(--text);
+    font-size: 12px;
+}
+
+#lastCheckContainer,
+.last-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.last-check i,
+#checkStatusIcon {
+    font-size: 16px;
+}
+
+.last-check .check-ok,
+#checkStatusIcon.check-ok {
+    color: #2ecc71;
+}
+
+.last-check .check-old,
+#checkStatusIcon.check-old {
+    color: #e05a5a;
+}
+
+.theme-toggle {
+    width: 38px;
+    height: 38px;
+    padding: 0 !important;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* =====================================================
+   4. DASHBOARD SUMMARY CARDS
+===================================================== */
+
 .summary-card {
+    height: 100%;
+    padding: 20px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 20px;
-    height: 100%;
 }
 
 .summary-label {
@@ -92,23 +203,115 @@ body {
     font-weight: 700;
 }
 
+
+/* =====================================================
+   5. DASHBOARD FILTERS
+===================================================== */
+
 .filter-select {
     width: 190px;
-    background-color: var(--surface);
+    background: var(--surface);
     color: var(--text);
     border-color: var(--border);
 }
 
 .filter-select:focus {
-    background-color: var(--surface);
+    background: var(--surface);
     color: var(--text);
     border-color: var(--primary);
+    box-shadow: none;
 }
 
 .filter-select option {
     background: var(--surface);
     color: var(--text);
 }
+
+.section-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.section-toolbar h4 {
+    margin: 0;
+}
+
+.section-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* =====================================================
+   6. AIRPORT SEARCH
+===================================================== */
+
+.airport-search {
+    position: relative;
+    width: 270px;
+    max-width: 100%;
+}
+
+.airport-search>i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+}
+
+.airport-search input {
+    width: 100%;
+    height: 40px;
+    padding: 8px 34px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    outline: none;
+}
+
+.airport-search input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, .15);
+}
+
+.airport-search input::placeholder {
+    color: var(--muted);
+}
+
+#clearAirportSearch {
+    display: none;
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 4px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+#clearAirportSearch:hover {
+    color: var(--text);
+}
+
+.section-filters select {
+    width: 190px;
+    height: 40px;
+}
+
+
+/* =====================================================
+   7. COUNTRY SECTIONS
+===================================================== */
 
 .country-section {
     margin-bottom: 32px;
@@ -118,34 +321,44 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 1px solid var(--border);
     padding-bottom: 12px;
     margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
     font-size: 18px;
     font-weight: 700;
 }
 
 .country-code {
+    padding: 5px 9px;
     background: var(--surface-2);
     border: 1px solid var(--border);
     border-radius: 5px;
-    padding: 5px 9px;
-    font-size: 11px;
     color: var(--muted);
+    font-size: 11px;
 }
 
+
+/* =====================================================
+   8. AIRPORT CARDS - DASHBOARD
+===================================================== */
+
 .airport-card {
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    overflow: hidden;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
-    overflow: hidden;
 }
 
 .airport-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 15px 17px;
-    border-bottom: 1px solid var(--border);
     background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
 }
 
 .airport-icao {
@@ -155,304 +368,14 @@ body {
 }
 
 .airport-name {
-    font-size: 12px;
-    color: var(--muted);
     margin-top: 3px;
+    color: var(--muted);
+    font-size: 12px;
 }
 
 .airport-iata {
     color: var(--muted);
     font-size: 12px;
-}
-
-.airport-body {
-    padding: 13px;
-}
-
-.notam-item {
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 12px;
-    margin-bottom: 10px;
-}
-
-.notam-item:last-child {
-    margin-bottom: 0;
-}
-
-.notam-number {
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.notam-classification {
-    font-size: 10px;
-    border-radius: 4px;
-    padding: 4px 7px;
-    background: var(--surface-2);
-    color: var(--muted);
-}
-
-.notam-short-text {
-    color: var(--text);
-    font-size: 12px;
-    line-height: 1.5;
-    margin-top: 10px;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-}
-
-.notam-dates {
-    color: var(--muted);
-    font-size: 10px;
-    margin-top: 10px;
-    line-height: 1.7;
-}
-
-.btn-icao {
-    font-size: 11px;
-    padding: 5px 9px;
-}
-
-.no-notams {
-    color: var(--muted);
-    font-size: 12px;
-    padding: 12px 0;
-}
-
-.loading-state {
-    color: var(--muted);
-    padding: 35px;
-    text-align: center;
-}
-
-.modal-custom {
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-}
-
-.modal-custom .modal-header,
-.modal-custom .modal-footer {
-    border-color: var(--border);
-}
-
-.modal-custom .btn-close {
-    filter: invert(1);
-}
-
-[data-theme="light"] .modal-custom .btn-close {
-    filter: none;
-}
-
-.icao-text {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 16px;
-    border-radius: 7px;
-    font-size: 12px;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    max-height: 55vh;
-    overflow-y: auto;
-}
-
-.empty-state {
-    background: var(--surface);
-    border: 1px dashed var(--border);
-    border-radius: 10px;
-    padding: 35px;
-    text-align: center;
-    color: var(--muted);
-}
-
-.check-details {
-    font-size: 13px;
-    line-height: 1.8;
-}
-
-.airport-error {
-    border-color: var(--danger);
-}
-
-@media (max-width: 768px) {
-
-    .last-check {
-        font-size: 11px;
-    }
-
-    .page-title {
-        font-size: 21px;
-    }
-
-    .summary-card {
-        padding: 15px;
-    }
-
-    .summary-value {
-        font-size: 25px;
-    }
-
-    .main-navbar .container-fluid {
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-    }
-}
-
-
-/* ==========================================
-   OPERATIONAL NOTAM CARDS
-========================================== */
-
-.notam-item {
-    display: block;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 11px;
-    transition: transform .15s ease, border-color .15s ease;
-}
-
-.notam-item:hover {
-    transform: translateY(-2px);
-    background: var(--surface-2);
-}
-
-.notam-item.runway {
-    border-left-color: #dc3545;
-}
-
-.notam-item.airport {
-    border-left-color: #fd7e14;
-}
-
-.notam-item.fuel {
-    border-left-color: #e0b52c;
-}
-
-.notam-item.navaid {
-    border-left-color: #9664dc;
-}
-
-.notam-topline {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    min-width: 0;
-}
-
-.notam-category-icon {
-    width: 29px;
-    height: 29px;
-    border-radius: 6px;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
-    font-size: 15px;
-}
-
-.notam-item.runway .notam-category-icon {
-    background: rgba(220, 53, 69, .15);
-    color: #ef6673;
-}
-
-.notam-item.airport .notam-category-icon {
-    background: rgba(253, 126, 20, .15);
-    color: #ff9a43;
-}
-
-.notam-item.fuel .notam-category-icon {
-    background: rgba(224, 181, 44, .15);
-    color: #e6c34f;
-}
-
-.notam-item.navaid .notam-category-icon {
-    background: rgba(150, 100, 220, .15);
-    color: #b38be9;
-}
-
-.notam-number {
-    font-size: 13px;
-    font-weight: 700;
-    flex: 1;
-}
-
-.notam-category-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: .5px;
-    border-radius: 4px;
-    padding: 5px 7px;
-    background: var(--surface-2);
-    color: var(--muted);
-}
-
-.notam-chevron {
-    color: var(--muted);
-    font-size: 11px;
-}
-
-.notam-short-text {
-    font-size: 12px;
-    line-height: 1.55;
-    margin-top: 12px;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-}
-
-.notam-dates {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    color: var(--muted);
-    font-size: 10px;
-    margin-top: 12px;
-}
-
-.notam-open-hint {
-    border-top: 1px solid var(--border);
-    padding-top: 9px;
-    margin-top: 10px;
-    color: var(--muted);
-    font-size: 10px;
-}
-
-.notam-item:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-}
-
-.no-notams {
-    padding: 15px 0;
-}
-
-[data-theme="light"] .notam-item {
-    background: #fff;
-}
-
-[data-theme="light"] .notam-item:hover {
-    background: #f5f7fa;
-}
-
-
-/* ==========================================
-   CLEAN AIRPORT CARDS
-========================================== */
-
-.airport-card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
 }
 
 .airport-header-right {
@@ -462,13 +385,20 @@ body {
     gap: 7px;
 }
 
+.airport-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 13px;
+}
+
 .airport-closed-badge {
     display: inline-block;
+    padding: 5px 8px;
     background: rgba(220, 53, 69, .18);
     color: #ff737e;
     border: 1px solid rgba(220, 53, 69, .45);
     border-radius: 5px;
-    padding: 5px 8px;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: .5px;
@@ -496,9 +426,16 @@ body {
     border-radius: 10px;
 }
 
+
+/* =====================================================
+   9. NOTAM CARDS
+===================================================== */
+
 .notam-item {
     display: block;
     width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
     text-align: left;
     cursor: pointer;
     color: var(--text);
@@ -506,14 +443,21 @@ body {
     border: 1px solid var(--border);
     border-left: 4px solid var(--border);
     border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 10px;
-    transition: background .15s ease, transform .15s ease;
+    transition: background .15s ease, transform .15s ease, border-color .15s ease;
+}
+
+.notam-item:last-child {
+    margin-bottom: 0;
 }
 
 .notam-item:hover {
     transform: translateY(-1px);
     background: var(--surface-2);
+}
+
+.notam-item:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
 }
 
 .notam-item.runway {
@@ -532,20 +476,26 @@ body {
     border-left-color: #9664dc;
 }
 
+.notam-item.tax,
+.notam-item.taxway {
+    border-left-color: #e0a13b;
+}
+
 .notam-topline {
     display: flex;
     align-items: center;
     gap: 9px;
+    min-width: 0;
 }
 
 .notam-category-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    justify-content: center;
+    align-items: center;
     width: 29px;
     height: 29px;
     border-radius: 6px;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
     font-size: 15px;
 }
 
@@ -569,26 +519,39 @@ body {
     color: #b38be9;
 }
 
+.notam-item.tax .notam-category-icon,
+.notam-item.taxway .notam-category-icon {
+    background: rgba(224, 161, 59, .15);
+    color: #e0a13b;
+}
+
 .notam-number {
+    flex: 1;
+    min-width: 0;
     font-size: 13px;
     font-weight: 800;
-    flex: 1;
 }
 
 .notam-category-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: .4px;
-    border-radius: 4px;
     padding: 5px 7px;
     background: var(--surface-2);
     color: var(--muted);
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .4px;
+}
+
+.notam-chevron {
+    color: var(--muted);
+    font-size: 11px;
 }
 
 .notam-short-text {
+    margin-top: 13px;
+    color: var(--text);
     font-size: 12px;
     line-height: 1.65;
-    margin-top: 13px;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
@@ -597,36 +560,44 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 14px;
+    margin-top: 14px;
     color: var(--muted);
     font-size: 11px;
     font-weight: 600;
-    margin-top: 14px;
+    line-height: 1.7;
 }
 
 .notam-open-hint {
-    border-top: 1px solid var(--border);
     padding-top: 9px;
     margin-top: 10px;
+    border-top: 1px solid var(--border);
     color: var(--muted);
     font-size: 10px;
 }
 
-/* OPERATIONAL TEXT HIGHLIGHTING */
+.notam-category-icon i {
+    line-height: 1;
+}
+
+
+/* =====================================================
+   10. NOTAM TEXT HIGHLIGHTING
+===================================================== */
 
 .highlight-closure {
-    color: #ff6572;
-    font-weight: 900;
-    background: rgba(220, 53, 69, .13);
     padding: 1px 3px;
+    background: rgba(220, 53, 69, .13);
+    color: #ff6572;
     border-radius: 3px;
+    font-weight: 900;
 }
 
 .highlight-unserviceable {
-    color: #ff9a43;
-    font-weight: 900;
-    background: rgba(253, 126, 20, .13);
     padding: 1px 3px;
+    background: rgba(253, 126, 20, .13);
+    color: #ff9a43;
     border-radius: 3px;
+    font-weight: 900;
 }
 
 .highlight-runway {
@@ -649,30 +620,89 @@ body {
     font-weight: 800;
 }
 
-/* LIGHT THEME */
 
-[data-theme="light"] .notam-item {
-    background: #fff;
+/* =====================================================
+   11. NOTAM MODAL
+===================================================== */
+
+.modal-custom,
+.airport-modal {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
 }
 
-[data-theme="light"] .notam-item:hover {
-    background: #f5f7fa;
+.modal-custom .modal-header,
+.modal-custom .modal-footer,
+.airport-modal .modal-header,
+.airport-modal .modal-footer {
+    border-color: var(--border);
 }
 
-/* RESPONSIVE */
-
-@media (max-width: 768px) {
-    .airport-notams-scroll {
-        max-height: 450px;
-    }
-
-    .notam-dates {
-        font-size: 10px;
-        gap: 8px;
-    }
+.modal-custom .btn-close,
+.airport-modal .btn-close {
+    filter: invert(1);
 }
 
-/* SUCCESS CHECK MESSAGE */
+[data-theme="light"] .modal-custom .btn-close,
+[data-theme="light"] .airport-modal .btn-close {
+    filter: none;
+}
+
+.icao-text {
+    max-height: 55vh;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/* =====================================================
+   12. EMPTY AND LOADING STATES
+===================================================== */
+
+.empty-state {
+    padding: 35px;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.loading-state {
+    padding: 35px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.no-notams {
+    padding: 15px 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.check-details {
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.airport-error {
+    border-color: var(--danger);
+}
+
+
+/* =====================================================
+   13. CHECK RESULT MESSAGE
+===================================================== */
 
 .check-result-alert {
     position: relative;
@@ -683,88 +713,90 @@ body {
     position: absolute;
     top: 10px;
     right: 12px;
-    border: 0;
+    padding: 4px;
     background: transparent;
+    border: 0;
     color: inherit;
     opacity: .7;
     font-size: 16px;
     cursor: pointer;
-    padding: 4px;
 }
 
 .check-result-close:hover {
     opacity: 1;
 }
 
-/* TAXIWAY CATEGORY */
 
-.notam-item.tax i {
-    color: #ff9a43;
+/* =====================================================
+   14. AIRPORT MANAGEMENT PAGE
+===================================================== */
+
+.page-content {
+    padding: 28px 22px;
 }
 
-.notam-item.tax {
-    border-left-color: #e0a13b;
-}
-
-.notam-item.tax .notam-category-icon {
-    background: rgba(224, 161, 59, .15);
-    color: #e0a13b;
-}
-
-.notam-item.taxway {
-    border-left-color: #e0a13b;
-}
-
-/* TAXIWAY CATEGORY - actual class */
-
-.notam-item.tax i,
-.notam-item.taxway i {
-    color: #e0a13b;
-}
-
-.notam-item.taxway .notam-category-icon {
-    background: rgba(224, 161, 59, .15);
-    color: #e0a13b;
-}
-
-.notam-item.taxway .notam-category-label {
-    color: #e0a13b;
-}
-
-.notam-item.taxway {
-    border-left-color: #e0a13b;
-}
-
-/* DASHBOARD TOOLBAR */
-
-.section-toolbar {
+.page-heading {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
+    margin-bottom: 26px;
+}
+
+.page-heading h2 {
+    margin: 0 0 5px;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.page-heading p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.airport-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.airport-total span {
+    font-size: 27px;
+    font-weight: 800;
+}
+
+.airport-total small {
+    color: var(--muted);
+}
+
+
+/* =====================================================
+   15. AIRPORT MANAGEMENT TOOLBAR
+===================================================== */
+
+.airport-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
     margin-bottom: 18px;
 }
 
-.section-toolbar h4 {
-    margin: 0;
-}
-
-.section-filters {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.airport-toolbar .btn {
+    height: 42px;
+    white-space: nowrap;
+    font-weight: 600;
 }
 
 .airport-search {
     position: relative;
-    width: 270px;
+    width: 100%;
+    max-width: 480px;
 }
 
-.airport-search>i {
+.airport-search i {
     position: absolute;
-    left: 12px;
     top: 50%;
+    left: 13px;
     transform: translateY(-50%);
     color: var(--muted);
     pointer-events: none;
@@ -772,17 +804,17 @@ body {
 
 .airport-search input {
     width: 100%;
-    height: 40px;
-    padding: 8px 34px;
-    color: var(--text);
+    height: 42px;
+    padding: 9px 12px 9px 38px;
     background: var(--surface);
+    color: var(--text);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 7px;
     outline: none;
 }
 
 .airport-search input:focus {
-    border-color: #0d6efd;
+    border-color: var(--primary);
     box-shadow: 0 0 0 2px rgba(13, 110, 253, .15);
 }
 
@@ -790,37 +822,364 @@ body {
     color: var(--muted);
 }
 
-#clearAirportSearch {
-    display: none;
-    position: absolute;
-    right: 9px;
-    top: 50%;
-    transform: translateY(-50%);
-    border: 0;
-    background: transparent;
+
+/* =====================================================
+   16. AIRPORT MANAGEMENT LIST
+===================================================== */
+
+.airport-list-card {
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.airport-list-header,
+.airport-list-row {
+    display: grid;
+    grid-template-columns: 120px 110px minmax(180px, 1fr) 160px 110px;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 18px;
+}
+
+.airport-list-header {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
     color: var(--muted);
-    cursor: pointer;
-    padding: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .5px;
 }
 
-#clearAirportSearch:hover {
+.airport-list-row {
+    min-height: 68px;
+    border-bottom: 1px solid var(--border);
+    transition: background .15s ease;
+}
+
+.airport-list-row:last-child {
+    border-bottom: 0;
+}
+
+.airport-list-row:hover {
+    background: var(--surface-2);
+}
+
+.airport-list-icao {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+
+.airport-list-iata {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.airport-list-name {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.airport-list-name strong {
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.airport-list-name small {
+    display: none;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.airport-list-state {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.airport-list-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.airport-list-actions button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.airport-list-loading,
+.airport-empty {
+    padding: 45px 20px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.airport-empty i {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 30px;
+}
+
+.airport-empty p {
+    margin: 0;
+}
+
+
+/* =====================================================
+   17. AIRPORT MANAGEMENT MODALS
+===================================================== */
+
+.airport-modal .modal-header small {
+    color: var(--muted);
+}
+
+.airport-modal .form-label {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.airport-modal .form-control {
+    background: var(--surface-2);
     color: var(--text);
+    border-color: var(--border);
 }
 
-.section-filters select {
-    width: 190px;
-    height: 40px;
+.airport-modal .form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, .15);
 }
 
-@media (max-width: 650px) {
+.airport-modal .form-control::placeholder {
+    color: var(--muted);
+}
+
+
+/* =====================================================
+   18. LIGHT THEME ADJUSTMENTS
+===================================================== */
+
+[data-theme="light"] .notam-item {
+    background: #ffffff;
+}
+
+[data-theme="light"] .notam-item:hover {
+    background: #f5f7fa;
+}
+
+[data-theme="light"] .highlight-closure {
+    color: #c62838;
+}
+
+[data-theme="light"] .highlight-unserviceable {
+    color: #c45a0c;
+}
+
+[data-theme="light"] .highlight-runway {
+    color: #c13d4b;
+}
+
+[data-theme="light"] .highlight-taxiway {
+    color: #b85d12;
+}
+
+[data-theme="light"] .highlight-navaid {
+    color: #7543b5;
+}
+
+[data-theme="light"] .highlight-fuel {
+    color: #99720b;
+}
+
+[data-theme="light"] .airport-closed-badge {
+    color: #c62838;
+}
+
+
+/* =====================================================
+   19. RESPONSIVE - TABLETS
+===================================================== */
+
+@media (max-width: 850px) {
+
+    .airport-list-header {
+        display: none;
+    }
+
+    .airport-list-row {
+        grid-template-columns: 1fr 1fr auto;
+        gap: 8px;
+        padding: 14px;
+    }
+
+    .airport-list-icao {
+        grid-column: 1;
+    }
+
+    .airport-list-iata {
+        grid-column: 2;
+    }
+
+    .airport-list-name {
+        grid-column: 1 / 3;
+        grid-row: 2;
+    }
+
+    .airport-list-name small {
+        display: block;
+    }
+
+    .airport-list-state {
+        display: none;
+    }
+
+    .airport-list-actions {
+        grid-column: 3;
+        grid-row: 1 / 3;
+    }
+
+    .airport-notams-scroll {
+        max-height: 450px;
+    }
+}
+
+
+/* =====================================================
+   20. RESPONSIVE - MOBILE
+===================================================== */
+
+@media (max-width: 767px) {
+
+    .main-navbar .container-fluid,
+    .app-navbar .container-fluid {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    .main-navbar .navbar-collapse,
+    .app-navbar .navbar-collapse {
+        width: 100%;
+        padding-top: 10px;
+    }
+
+    .main-navbar .navbar-nav,
+    .app-navbar .navbar-nav {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .main-navbar .nav-link,
+    .app-navbar .nav-link {
+        width: 100%;
+    }
+
+    .navbar-tools {
+        justify-content: flex-start;
+        margin: 10px 0 0;
+        padding: 8px 0;
+    }
+
+    .last-check,
+    #lastCheckContainer {
+        font-size: 11px;
+    }
+
+    .page-title {
+        font-size: 21px;
+    }
+
+    .summary-card {
+        padding: 15px;
+    }
+
+    .summary-value {
+        font-size: 25px;
+    }
+
     .section-filters {
         width: 100%;
         flex-direction: column;
         align-items: stretch;
     }
 
-    .airport-search,
+    .section-filters .airport-search,
     .section-filters select {
         width: 100%;
+        max-width: none;
+    }
+
+    .page-content {
+        padding: 20px 12px;
+    }
+
+    .airport-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .airport-toolbar .airport-search {
+        max-width: none;
+    }
+
+    .airport-toolbar .btn {
+        width: 100%;
+    }
+
+    .page-heading h2 {
+        font-size: 22px;
+    }
+
+    .notam-dates {
+        gap: 8px;
+        font-size: 10px;
+    }
+}
+
+
+/* =====================================================
+   21. SMALL MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+
+    .main-navbar,
+    .app-navbar {
+        padding: 8px 10px !important;
+    }
+
+    .main-navbar .navbar-brand,
+    .app-navbar .navbar-brand {
+        font-size: 16px;
+    }
+
+    .page-heading {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .airport-total span {
+        font-size: 22px;
+    }
+
+    .airport-header {
+        padding: 12px;
+    }
+
+    .airport-body {
+        padding: 10px;
+    }
+
+    .notam-item {
+        padding: 10px;
+    }
+
+    .notam-short-text {
+        font-size: 12px;
     }
 }
