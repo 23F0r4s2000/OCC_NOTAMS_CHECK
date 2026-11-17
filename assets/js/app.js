@@ -24,6 +24,17 @@ $(document).ready(function () {
     $("#airportsContainer").on("click", ".notam-item", function () {
         showIcaoText(this);
     });
+
+    $("#airportSearch").on("input", function () {
+        $("#clearAirportSearch").toggle($(this).val().length > 0);
+        loadDashboard();
+    });
+
+    $("#clearAirportSearch").on("click", function () {
+        $("#airportSearch").val("");
+        $(this).hide();
+        loadDashboard();
+    });
 });
 
 /* ==========================================
@@ -213,53 +224,62 @@ function isAirportClosed(notams) {
    OPERATIONAL CLASSIFICATION
 ========================================== */
 
+
 function categorizeNotam(notam) {
     const text = getNotamText(notam);
 
     const closureTerms =
-        /\b(CLSD|CLOSED|CLOSURE|U\/S|UNSERVICEABLE|OUT OF SERVICE|NOT AVBL|NOT AVAILABLE|INOP|UNAVAILABLE|SUSPENDED)\b/;
+        /\b(CLSD|CLOSED|CLOSURE|U\/S|UNSERVICEABLE|OUT OF SERVICE|NOT AVBL|NOT AVAILABLE|INOP|UNAVAILABLE)\b/;
 
-    // Fuel / refuelling
-    if (
-        /\b(FUEL|FUELLING|FUELING|REFUELLING|REFUELING|AVGAS|JET A-?1|FUEL SUPPLY)\b/.test(text)
-    ) {
-        return "fuel";
-    }
-
-    // Navaids: only actual unserviceability or closure
-    const hasNavaid =
-        /\b(ILS|LOCALIZER|LOCALISER|GLIDE PATH|GLIDESLOPE|VOR|DME|NDB|TACAN|GBAS|GNSS)\b/.test(text);
-
-    if (hasNavaid && closureTerms.test(text)) {
-        return "navaid";
-    }
-
-    // All taxiways closed: individual taxiway closures are ignored
-    if (isAllTaxiwaysClosed([notam])) {
-        return "taxiway";
-    }
-
-    // Runway: show only actual runway closure / unserviceability
-    const hasRunway = /\b(RWY|RUNWAY|RWYS|RUNWAYS)\b/.test(text);
+    // 1. Runway closures only
+    const hasRunway =
+        /\b(RWY|RWYS|RUNWAY|RUNWAYS)\b/.test(text);
 
     if (hasRunway && closureTerms.test(text)) {
         return "runway";
     }
 
-    // Other airport operational problems, excluding individual taxiways
-    const hasAirportIssue =
-        /\b(AD CLSD|AERODROME CLSD|AIRPORT CLOSED|AERODROME CLOSED|APRON|STAND|PARKING AREA|MOVEMENT AREA|AIRCRAFT STAND|AIRPORT LIGHTING)\b/.test(text);
+    // 2. Taxiway closures
+    // Individual taxiway closures are included.
+    // Stand closures are excluded because STAND is not a taxiway.
+    const hasTaxiway =
+        /\b(TWY|TWYS|TAXIWAY|TAXIWAYS)\b/.test(text);
 
-    if (hasAirportIssue) {
-        return "airport";
+    if (hasTaxiway && closureTerms.test(text)) {
+        return "taxiway";
     }
 
+    // 3. Fuel / refuelling problems
+    const hasFuel =
+        /\b(FUEL|FUELLING|FUELING|REFUELLING|REFUELING|AVGAS|JET A-?1|FUEL SUPPLY|FUEL FARM)\b/.test(text);
+
+    const fuelProblem =
+        /\b(U\/S|UNSERVICEABLE|UNAVAILABLE|NOT AVAILABLE|NOT AVBL|NO FUEL|OUT OF SERVICE|SUSPENDED|INTERRUPTED|RESTRICTED|LIMITED|NOT PROVIDED|INOP)\b/.test(text);
+
+    if (hasFuel && fuelProblem) {
+        return "fuel";
+    }
+
+    // 4. Navigation aids and surveillance systems
+    const hasNavaid =
+        /\b(ILS|LOCALIZER|LOCALISER|GLIDE PATH|GLIDESLOPE|VOR|DME|NDB|TACAN|GBAS|GNSS|GPS|RADAR|SSR|ASR|PAR|APPROACH RADAR)\b/.test(text);
+
+    const navaidProblem =
+        /\b(U\/S|UNSERVICEABLE|OUT OF SERVICE|NOT AVBL|NOT AVAILABLE|INOP|UNAVAILABLE|SUSPENDED|INTERRUPTED|UNRELIABLE|DEGRADED|LIMITED|RESTRICTED|UNMONITORED)\b/.test(text);
+
+    if (hasNavaid && navaidProblem) {
+        return "navaid";
+    }
+
+    // Everything else is excluded
     return null;
 }
+
 
 /* ==========================================
    CATEGORY DETAILS
 ========================================== */
+
 
 function categoryInfo(category) {
     const categories = {
@@ -269,14 +289,9 @@ function categoryInfo(category) {
             color: "runway"
         },
         taxiway: {
-            label: "ALL TAXIWAYS CLOSED",
+            label: "TAXIWAY CLOSURE",
             icon: "bi-sign-stop",
-            color: "runway"
-        },
-        airport: {
-            label: "AERODROME",
-            icon: "bi-airplane",
-            color: "airport"
+            color: "taxiway"
         },
         fuel: {
             label: "FUEL",
@@ -292,6 +307,7 @@ function categoryInfo(category) {
 
     return categories[category];
 }
+
 
 /* ==========================================
    FILTER
@@ -309,7 +325,15 @@ function applyCategoryFilter(notams) {
    RENDER DASHBOARD
 ========================================== */
 
+
+
+
 function renderDashboard(airports) {
+    const filter = $("#categoryFilter").val() || "all";
+    const search = ($("#airportSearch").val() || "")
+        .trim()
+        .toLowerCase();
+
     const visibleAirports = airports
         .map(airport => ({
             ...airport,
@@ -317,26 +341,44 @@ function renderDashboard(airports) {
                 airport.operationalNotams
             )
         }))
-        .filter(airport => airport.visibleNotams.length > 0);
+        .filter(airport => {
+            const matchesSearch =
+                !search ||
+                (airport.ICAO || "").toLowerCase().includes(search) ||
+                (airport.IATA || "").toLowerCase().includes(search) ||
+                (airport.name || "").toLowerCase().includes(search);
 
-    const visibleNotamCount = visibleAirports.reduce(
-        (total, airport) => total + airport.visibleNotams.length,
-        0
+            return matchesSearch &&
+                airport.visibleNotams.length > 0;
+        });
+
+    // KPI 1: total airports checked
+    $("#airportCount").text(airports.length);
+
+    // KPI 2: airports with at least one relevant NOTAM
+    const airportsWithRelevantNotams = airports.filter(
+        airport => airport.operationalNotams.length > 0
     );
 
+    $("#notamCount").text(
+        airportsWithRelevantNotams.length
+    );
+
+    // KPI 3: total countries monitored
     const countries = [
-        ...new Set(visibleAirports.map(a => a.state || "OTHER"))
+        ...new Set(airports.map(a => a.state || "OTHER"))
     ];
 
-    $("#airportCount").text(visibleAirports.length);
-    $("#notamCount").text(visibleNotamCount);
     $("#countryCount").text(countries.length);
 
     if (!visibleAirports.length) {
         $("#airportsContainer").html(`
             <div class="empty-state">
-                <i class="bi bi-check-circle me-2"></i>
-                No relevant active or upcoming NOTAMs.
+                <i class="bi bi-search me-2"></i>
+                ${search
+                ? "No airports found with relevant NOTAMs."
+                : "No relevant active or upcoming NOTAMs."
+            }
             </div>
         `);
         return;
@@ -381,6 +423,9 @@ function renderDashboard(airports) {
 
     $("#airportsContainer").html(html);
 }
+
+
+
 
 /* ==========================================
    AIRPORT CARD
@@ -632,8 +677,18 @@ async function checkNotams() {
 
         await loadDashboard();
 
+
         $("#checkResult").html(`
-            <div class="alert alert-success">
+            <div class="alert alert-success check-result-alert">
+                <button
+                    type="button"
+                    class="check-result-close"
+                    aria-label="Close"
+                    onclick="$('#checkResult').empty()"
+                >
+                    <i class="bi bi-x-lg"></i>
+                </button>
+
                 <strong>NOTAM check completed.</strong>
 
                 <div class="check-details mt-2">
@@ -648,6 +703,7 @@ async function checkNotams() {
                 </div>
             </div>
         `);
+
 
     } catch (error) {
         console.error("Check NOTAMs error:", error);

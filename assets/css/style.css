@@ -671,3 +671,156 @@ body {
         gap: 8px;
     }
 }
+
+/* SUCCESS CHECK MESSAGE */
+
+.check-result-alert {
+    position: relative;
+    padding-right: 45px;
+}
+
+.check-result-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    opacity: .7;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.check-result-close:hover {
+    opacity: 1;
+}
+
+/* TAXIWAY CATEGORY */
+
+.notam-item.tax i {
+    color: #ff9a43;
+}
+
+.notam-item.tax {
+    border-left-color: #e0a13b;
+}
+
+.notam-item.tax .notam-category-icon {
+    background: rgba(224, 161, 59, .15);
+    color: #e0a13b;
+}
+
+.notam-item.taxway {
+    border-left-color: #e0a13b;
+}
+
+/* TAXIWAY CATEGORY - actual class */
+
+.notam-item.tax i,
+.notam-item.taxway i {
+    color: #e0a13b;
+}
+
+.notam-item.taxway .notam-category-icon {
+    background: rgba(224, 161, 59, .15);
+    color: #e0a13b;
+}
+
+.notam-item.taxway .notam-category-label {
+    color: #e0a13b;
+}
+
+.notam-item.taxway {
+    border-left-color: #e0a13b;
+}
+
+/* DASHBOARD TOOLBAR */
+
+.section-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.section-toolbar h4 {
+    margin: 0;
+}
+
+.section-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.airport-search {
+    position: relative;
+    width: 270px;
+}
+
+.airport-search>i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+}
+
+.airport-search input {
+    width: 100%;
+    height: 40px;
+    padding: 8px 34px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+}
+
+.airport-search input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, .15);
+}
+
+.airport-search input::placeholder {
+    color: var(--muted);
+}
+
+#clearAirportSearch {
+    display: none;
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px;
+}
+
+#clearAirportSearch:hover {
+    color: var(--text);
+}
+
+.section-filters select {
+    width: 190px;
+    height: 40px;
+}
+
+@media (max-width: 650px) {
+    .section-filters {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .airport-search,
+    .section-filters select {
+        width: 100%;
+    }
+}

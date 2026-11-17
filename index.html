@@ -28,8 +28,8 @@
     <nav class="navbar navbar-dark main-navbar">
         <div class="container-fluid px-4">
 
-            <a class="navbar-brand fw-bold" href="#">
-                <i class="bi bi-airplane-engines me-2"></i>
+            <a href="index.html" class="navbar-brand" id="brandHome">
+                <i class="bi bi-airplane"></i>
                 OCC NOTAMS FAA
             </a>
 
@@ -100,7 +100,7 @@
                 <div class="summary-card">
 
                     <div class="summary-label">
-                        Airports monitored
+                        Airports checked
                     </div>
 
                     <div class="summary-value" id="airportCount">
@@ -117,7 +117,7 @@
                 <div class="summary-card">
 
                     <div class="summary-label">
-                        Active / upcoming NOTAMs
+                        Airports with relevant NOTAMs
                     </div>
 
                     <div class="summary-value" id="notamCount">
@@ -150,22 +150,26 @@
 
         <!-- AIRPORTS -->
 
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
-
-            <h4 class="section-title mb-0">
-                Airports and NOTAMs
-            </h4>
-
-            
-        <select id="categoryFilter" class="form-select filter-select">
-            <option value="all">All operational categories</option>
-            <option value="runway">Runway closures</option>
-            <option value="airport">Aerodrome issues</option>
-            <option value="fuel">Fuel / Refuelling</option>
-            <option value="navaid">Navigation aids</option>
-        </select>
-
-
+        <div class="section-toolbar">
+            <h4>Airports and NOTAMs</h4>
+        
+            <div class="section-filters">
+                <div class="airport-search">
+                    <i class="bi bi-search"></i>
+                    <input type="search" id="airportSearch" placeholder="Search ICAO, IATA or airport..." autocomplete="off">
+                    <button type="button" id="clearAirportSearch" aria-label="Clear search">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+        
+                <select id="categoryFilter" class="form-select">
+                    <option value="all">All classifications</option>
+                    <option value="runway">Runway closures</option>
+                    <option value="taxiway">Taxiway closures</option>
+                    <option value="fuel">Fuel</option>
+                    <option value="navaid">Navaids</option>
+                </select>
+            </div>
         </div>
 
 
