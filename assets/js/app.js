@@ -431,8 +431,32 @@ function renderDashboard(airports) {
    AIRPORT CARD
 ========================================== */
 
+
 function renderAirportCard(airport) {
-    const notams = airport.visibleNotams;
+    const notams = [...airport.visibleNotams].sort((a, b) => {
+        function parseNotamNumber(number) {
+            const match = String(number || "").match(/^[A-Z]+(\d+)\/(\d+)$/);
+
+            if (!match) {
+                return { sequence: 0, year: 0 };
+            }
+
+            return {
+                sequence: parseInt(match[1], 10),
+                year: parseInt(match[2], 10)
+            };
+        }
+
+        const first = parseNotamNumber(a.number);
+        const second = parseNotamNumber(b.number);
+
+        // Prima anno più recente, poi numero progressivo più alto
+        if (first.year !== second.year) {
+            return second.year - first.year;
+        }
+
+        return second.sequence - first.sequence;
+    });
 
     const airportClosed = airport.airportClosed;
 
@@ -462,11 +486,10 @@ function renderAirportCard(airport) {
                             ${escapeHtml(airport.IATA || "")}
                         </span>
 
-                        ${
-                            airportClosed
-                                ? '<span class="airport-closed-badge"><i class="bi bi-exclamation-octagon-fill me-1"></i>AIRPORT CLOSED</span>'
-                                : ""
-                        }
+                        ${airportClosed
+            ? '<span class="airport-closed-badge"><i class="bi bi-exclamation-octagon-fill me-1"></i>AIRPORT CLOSED</span>'
+            : ""
+        }
                     </div>
                 </div>
 
