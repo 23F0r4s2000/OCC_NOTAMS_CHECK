@@ -1183,3 +1183,369 @@ body {
         font-size: 12px;
     }
 }
+
+/* =====================================================
+   NOTAMS OVERVIEW PAGE
+===================================================== */
+
+.notams-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.notams-search {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+}
+
+.notams-search>i {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+}
+
+.notams-search input {
+    width: 100%;
+    height: 43px;
+    padding: 9px 38px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    outline: none;
+}
+
+.notams-search input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, .15);
+}
+
+.notams-search input::placeholder {
+    color: var(--muted);
+}
+
+#clearNotamsSearch {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 4px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+#clearNotamsSearch:hover {
+    color: var(--text);
+}
+
+.notams-total-label {
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.notams-total-label span {
+    color: var(--text);
+    font-weight: 800;
+    font-size: 17px;
+}
+
+
+/* =====================================================
+   NOTAMS LIST
+===================================================== */
+
+.notams-list-card {
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.notams-list-row {
+    display: grid;
+    grid-template-columns: 155px minmax(0, 1fr) 42px;
+    align-items: stretch;
+    gap: 15px;
+    padding: 15px 17px;
+    border-bottom: 1px solid var(--border);
+    transition: background .15s ease;
+}
+
+.notams-list-row:last-child {
+    border-bottom: 0;
+}
+
+.notams-list-row:hover {
+    background: var(--surface-2);
+}
+
+.notams-airport-code {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.notams-airport-link {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    text-decoration: none;
+}
+
+.notams-airport-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.notams-iata {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.notams-latest {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    text-align: left;
+    color: var(--text);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.notams-latest:hover .notams-latest-top strong {
+    color: var(--primary);
+}
+
+.notams-latest-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 7px;
+}
+
+.notams-latest-top strong {
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.notams-latest-date {
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.notams-latest-text {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.notams-open-airport {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--muted);
+    font-size: 22px;
+    text-decoration: none;
+    transition: color .15s ease, transform .15s ease;
+}
+
+.notams-open-airport:hover {
+    color: var(--primary);
+    transform: translateX(3px);
+}
+
+
+/* =====================================================
+   AIRPORT NOTAMS DETAIL
+===================================================== */
+
+.airport-detail-back {
+    margin-bottom: 22px;
+}
+
+.airport-detail-heading {
+    margin-bottom: 24px;
+}
+
+.airport-detail-notams {
+    display: flex;
+    flex-direction: column;
+}
+
+.airport-detail-notam {
+    display: block;
+    width: 100%;
+    padding: 16px 18px;
+    text-align: left;
+    color: var(--text);
+    background: var(--surface);
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background .15s ease;
+}
+
+.airport-detail-notam:last-child {
+    border-bottom: 0;
+}
+
+.airport-detail-notam:hover {
+    background: var(--surface-2);
+}
+
+.notams-detail-top {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.notams-detail-top>strong {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.notam-classification {
+    padding: 4px 7px;
+    background: var(--surface-2);
+    color: var(--muted);
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.notams-detail-text {
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.notams-detail-dates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   NOTAMS RESPONSIVE
+===================================================== */
+
+@media (max-width: 767px) {
+    .notams-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .notams-search {
+        max-width: none;
+    }
+
+    .notams-total-label {
+        text-align: right;
+    }
+
+    .notams-list-row {
+        grid-template-columns: minmax(0, 1fr) 32px;
+        gap: 8px 12px;
+        padding: 13px;
+    }
+
+    .notams-airport-code {
+        grid-column: 1;
+        grid-row: 1;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: baseline;
+        gap: 9px;
+    }
+
+    .notams-latest {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .notams-open-airport {
+        grid-column: 2;
+        grid-row: 1 / 3;
+    }
+
+    .notams-latest-top {
+        align-items: flex-start;
+    }
+
+    .notams-detail-top {
+        gap: 8px;
+    }
+
+    .notams-detail-dates {
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notams-latest-top {
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .notams-latest-text {
+        -webkit-line-clamp: 4;
+    }
+
+    .airport-detail-notam {
+        padding: 13px;
+    }
+}
+
+.notams-airport-link.disabled {
+    color: var(--muted);
+    cursor: default;
+    pointer-events: none;
+    text-decoration: none;
+}
+
+.notams-open-airport.disabled {
+    color: var(--muted);
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.notams-no-notam {
+    color: var(--muted);
+    font-size: 0.9rem;
+    padding: 10px 14px;
+    cursor: default;
+}
